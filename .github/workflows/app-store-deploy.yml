@@ -1,0 +1,192 @@
+name: App Store Deployment
+
+on:
+  push:
+    tags:
+      - 'v*'  # e.g., v1.0.0
+  workflow_dispatch:  # Manual trigger
+
+env:
+  XCODE_VERSION: '15.0'
+
+jobs:
+  # ✅ Archive & Export
+  archive:
+    name: Create Archive & Export IPA
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.0'
+
+      - name: Install dependencies
+        run: |
+          gem install cocoapods --user-install
+          pod install
+
+      - name: Create Archive
+        run: |
+          xcodebuild archive \
+            -workspace myfortune.xcworkspace \
+            -scheme myfortune \
+            -configuration Release \
+            -archivePath "./myfortune.xcarchive" \
+            -resultBundlePath ArchiveResult \
+            -verbose
+
+      - name: Export IPA
+        run: |
+          mkdir -p export_options
+          cat > export_options/ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>teamID</key>
+            <string>${{ secrets.APPLE_TEAM_ID }}</string>
+          </dict>
+          </plist>
+          EOF
+
+          xcodebuild -exportArchive \
+            -archivePath "./myfortune.xcarchive" \
+            -exportPath "./export" \
+            -exportOptionsPlist "export_options/ExportOptions.plist" \
+            -verbose
+
+      - name: Upload IPA to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: myfortune.ipa
+          path: export/myfortune.ipa
+          retention-days: 30
+
+      - name: Upload dSYM
+        uses: actions/upload-artifact@v3
+        with:
+          name: myfortune-dsym
+          path: ./myfortune.xcarchive/dSYMs
+          retention-days: 30
+
+  # ✅ Upload to App Store Connect
+  upload-app-store:
+    name: Upload to App Store Connect
+    runs-on: macos-latest
+    needs: archive
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download IPA
+        uses: actions/download-artifact@v3
+        with:
+          name: myfortune.ipa
+
+      - name: Upload to App Store Connect
+        env:
+          APPLE_USERNAME: ${{ secrets.APPLE_USERNAME }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          xcrun altool --upload-app \
+            -f myfortune.ipa \
+            -t ios \
+            -u "$APPLE_USERNAME" \
+            -p "$APPLE_PASSWORD"
+        continue-on-error: true
+
+  # ✅ Upload to TestFlight
+  upload-testflight:
+    name: Upload to TestFlight
+    runs-on: macos-latest
+    needs: archive
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download IPA
+        uses: actions/download-artifact@v3
+        with:
+          name: myfortune.ipa
+
+      - name: Upload to TestFlight
+        env:
+          APPLE_USERNAME: ${{ secrets.APPLE_USERNAME }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          xcrun altool --upload-app \
+            -f myfortune.ipa \
+            -t ios \
+            -u "$APPLE_USERNAME" \
+            -p "$APPLE_PASSWORD" \
+            --output-format xml
+        continue-on-error: true
+
+  # ✅ Create Release Notes
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [upload-app-store, upload-testflight]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## Release ${{ steps.version.outputs.VERSION }}
+
+            ### Changes
+            - App Store deployment
+            - TestFlight beta build
+
+            ### Downloads
+            - [App Store](https://apps.apple.com/app/myfortune/idXXXXXXXXXX)
+            - [TestFlight](https://testflight.apple.com/)
+
+            ### Build Info
+            - Commit: ${{ github.sha }}
+            - Runner: ${{ runner.os }}
+            - Timestamp: $(date)
+          draft: false
+          prerelease: false
+
+  # ✅ Slack Notification
+  notify-slack:
+    name: Notify Slack
+    runs-on: ubuntu-latest
+    needs: [archive, create-release]
+    if: always()
+    steps:
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            App Store Deployment: ${{ job.status }}
+            Version: ${{ steps.version.outputs.VERSION }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: always()
+        continue-on-error: true

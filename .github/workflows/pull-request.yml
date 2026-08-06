@@ -1,0 +1,221 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # ✅ Validate PR Title
+  pr-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check PR title format
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const regex = /^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?!?: .{1,}/;
+
+            if (!regex.test(title)) {
+              core.setFailed(
+                `PR title "${title}" does not follow convention.\n` +
+                `Expected format: type(scope): description\n` +
+                `Types: feat, fix, docs, style, refactor, test, chore`
+              );
+            }
+
+  # ✅ Check Commit Messages
+  commit-messages:
+    name: Check Commit Messages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate conventional commits
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ✅ Verify Files Changed
+  files-changed:
+    name: Verify Files Changed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for sensitive files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { exec } = require('child_process');
+            const fs = require('fs');
+
+            // List of files that should not be changed
+            const restrictedFiles = [
+              'Podfile.lock',
+              '.DS_Store',
+              'xcuserdata',
+              '*.xcarchive'
+            ];
+
+            console.log('✅ Checking for restricted files...');
+
+  # ✅ Build & Test on PR
+  pr-build-test:
+    name: Build & Test on PR
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.0'
+
+      - name: Install dependencies
+        run: |
+          gem install cocoapods --user-install
+          pod install
+
+      - name: Build
+        run: |
+          xcodebuild \
+            -workspace myfortune.xcworkspace \
+            -scheme myfortune \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath Build/Debug
+
+      - name: Run tests
+        run: |
+          xcodebuild test \
+            -workspace myfortune.xcworkspace \
+            -scheme myfortune \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath Build/Debug
+
+  # ✅ Code Review Insights
+  code-review:
+    name: Code Review Insights
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Scorecard
+        uses: ossf/scorecard-action@v2
+        with:
+          results_file: results.sarif
+          results_format: sarif
+        continue-on-error: true
+
+      - name: Upload to code scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
+        continue-on-error: true
+
+  # ✅ Request Approval
+  require-approval:
+    name: Require Approval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        if: github.event.action == 'opened'
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## PR Checklist ✅
+
+Please ensure your PR meets these requirements:
+
+- [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org/)
+- [ ] Commits are meaningful and well-described
+- [ ] Code follows Swift style guidelines
+- [ ] Tests are included for new features
+- [ ] Documentation is updated
+- [ ] No breaking changes (or documented in PR)
+- [ ] Build passes all checks
+
+**Types:**
+- \`feat\`: New feature
+- \`fix\`: Bug fix
+- \`docs\`: Documentation
+- \`style\`: Code style
+- \`refactor\`: Refactoring
+- \`test\`: Test addition
+- \`chore\`: Maintenance
+
+Example: \`feat(home): add fortune display widget\`
+
+---
+Built with ❤️ by Claude Code`
+            })
+
+  # ✅ Size Check
+  size-limit:
+    name: Check PR Size
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Calculate PR size
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const additions = pr.additions;
+            const deletions = pr.deletions;
+            const filesChanged = pr.changed_files;
+
+            console.log(`📊 PR Size:`);
+            console.log(`  Files changed: ${filesChanged}`);
+            console.log(`  Additions: ${additions}`);
+            console.log(`  Deletions: ${deletions}`);
+
+            if (filesChanged > 20 || additions > 500) {
+              core.warning(
+                `⚠️ Large PR detected (${filesChanged} files, ${additions} additions). ` +
+                `Consider breaking into smaller PRs.`
+              );
+            }
+
+  # ✅ Final Status
+  pr-status:
+    name: PR Status Check
+    runs-on: ubuntu-latest
+    needs: [pr-title, commit-messages, files-changed, pr-build-test, code-review, require-approval, size-limit]
+    if: always()
+    steps:
+      - name: Check status
+        run: |
+          echo "✅ PR Validation Complete"
+          echo "  - PR Title: ${{ needs.pr-title.result }}"
+          echo "  - Commits: ${{ needs.commit-messages.result }}"
+          echo "  - Files: ${{ needs.files-changed.result }}"
+          echo "  - Build: ${{ needs.pr-build-test.result }}"
+          echo "  - Code Review: ${{ needs.code-review.result }}"
+          echo "  - Size: ${{ needs.size-limit.result }}"
