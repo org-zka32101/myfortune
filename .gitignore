@@ -1,0 +1,56 @@
+# Xcode
+*.pbxuser
+*.perspectivev3
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+*.xcworkspace/xcuserdata/
+xcuserdata/
+DerivedData/
+Build/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+*.xcodeproj/xcshareddata/xcschemes/
+
+# IDE
+.DS_Store
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+
+# Build artifacts
+*.app
+*.dSYM
+*.o
+*.a
+*.so
+
+# Test artifacts
+*.xctest
+
+# Temporary files
+*.tmp
+*.temp
+.env
+.env.local
+
+# Logs
+*.log
+
+# System files
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
