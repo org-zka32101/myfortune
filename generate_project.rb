@@ -111,6 +111,10 @@ test_target.build_configurations.each do |config|
   config.build_settings['SDKROOT'] = 'iphoneos'
 end
 
+# Create and configure schemes
+puts "Creating and configuring schemes..."
+project.recreate_user_schemes
+
 # Save the project
 puts "Saving project..."
 project.save
@@ -118,3 +122,4 @@ project.save
 puts "\n✅ Project generated successfully at #{project_path}"
 puts "✅ App target: myfortune"
 puts "✅ Test target: myfortuneTests"
+puts "✅ Schemes configured"
