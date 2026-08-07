@@ -89,25 +89,14 @@ jobs:
 
       - name: Build for ${{ matrix.config }}
         run: |
-          if [ "${{ matrix.config }}" = "Debug" ]; then
-            echo "📱 Building for Simulator (generic platform)..."
-            xcodebuild build \
-              -workspace myfortune.xcworkspace \
-              -scheme ${{ matrix.scheme }} \
-              -configuration ${{ matrix.config }} \
-              -destination 'generic/platform=iphonesimulator' \
-              -derivedDataPath Build/${{ matrix.config }} \
-              -verbose
-          else
-            echo "📱 Building for Device (build-only, no connected device)..."
-            xcodebuild build \
-              -workspace myfortune.xcworkspace \
-              -scheme ${{ matrix.scheme }} \
-              -configuration ${{ matrix.config }} \
-              -sdk ${{ matrix.sdk }} \
-              -derivedDataPath Build/${{ matrix.config }} \
-              -verbose
-          fi
+          echo "📱 Building ${{ matrix.config }} for ${{ matrix.sdk }}..."
+          xcodebuild build \
+            -workspace myfortune.xcworkspace \
+            -scheme ${{ matrix.scheme }} \
+            -configuration ${{ matrix.config }} \
+            -sdk ${{ matrix.sdk }} \
+            -derivedDataPath Build/${{ matrix.config }} \
+            -verbose
 
       - name: Collect build logs
         if: failure()
