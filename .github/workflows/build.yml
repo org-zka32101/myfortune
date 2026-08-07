@@ -73,6 +73,10 @@ jobs:
       - name: Setup workspace schemes
         run: |
           ruby setup_workspace_schemes.rb
+          echo ""
+          echo "📂 Workspace structure after pod install:"
+          find myfortune.xcworkspace -name "*.xcscheme" -type f 2>/dev/null | sort
+          find myfortune.xcodeproj -name "*.xcscheme" -type f 2>/dev/null | sort || true
         working-directory: ${{ github.workspace }}
 
       - name: Cache CocoaPods
@@ -85,12 +89,18 @@ jobs:
 
       - name: Build for ${{ matrix.config }}
         run: |
-          xcodebuild \
+          echo "🔍 Checking available schemes and destinations..."
+          xcodebuild -workspace myfortune.xcworkspace -list 2>&1 || true
+          echo ""
+          echo "📱 Available destinations:"
+          xcodebuild -workspace myfortune.xcworkspace -scheme myfortune -showdestinations 2>&1 || true
+          echo ""
+          echo "🏗️ Starting build..."
+          xcodebuild build \
             -workspace myfortune.xcworkspace \
             -scheme ${{ matrix.scheme }} \
             -configuration ${{ matrix.config }} \
             -destination '${{ matrix.destination }}' \
-            -sdk ${{ matrix.sdk }} \
             -derivedDataPath Build/${{ matrix.config }} \
             -verbose
 
