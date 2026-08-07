@@ -84,7 +84,7 @@ jobs:
             -workspace myfortune.xcworkspace \
             -scheme ${{ matrix.scheme }} \
             -configuration ${{ matrix.config }} \
-            -sdk ${{ matrix.sdk }} \
+            -destination '${{ matrix.destination }}' \
             -derivedDataPath Build/${{ matrix.config }} \
             -verbose
 
