@@ -94,6 +94,7 @@ app_target.build_configurations.each do |config|
   config.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks']
   config.build_settings['ALWAYS_SEARCH_USER_PATHS'] = 'NO'
   config.build_settings['SDKROOT'] = 'iphoneos'
+  config.build_settings['SUPPORTED_PLATFORMS'] = 'iphoneos iphonesimulator'
 end
 
 # Configure build settings for test target
@@ -109,6 +110,7 @@ test_target.build_configurations.each do |config|
   config.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks', '@loader_path/Frameworks']
   config.build_settings['ALWAYS_SEARCH_USER_PATHS'] = 'NO'
   config.build_settings['SDKROOT'] = 'iphoneos'
+  config.build_settings['SUPPORTED_PLATFORMS'] = 'iphoneos iphonesimulator'
 end
 
 # Save the project first
