@@ -43,6 +43,15 @@ puts "   - myfortuneTests (#{test_target.uuid})"
 project_schemes_dir = File.join(project_path, 'xcshareddata', 'xcschemes')
 FileUtils.mkdir_p(project_schemes_dir)
 
+# Display target info for debugging
+puts "\nTarget platform configuration:"
+app_target.build_configurations.each do |config|
+  puts "  #{app_target.name} (#{config.name}):"
+  puts "    SUPPORTED_PLATFORMS: #{config.build_settings['SUPPORTED_PLATFORMS']}"
+  puts "    SDKROOT: #{config.build_settings['SDKROOT']}"
+  puts "    IPHONEOS_DEPLOYMENT_TARGET: #{config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']}"
+end
+
 # Create/update app scheme
 app_scheme_xml = <<-SCHEME
 <?xml version="1.0" encoding="UTF-8"?>
@@ -146,6 +155,100 @@ SCHEME
 
 File.write(File.join(project_schemes_dir, 'myfortune.xcscheme'), app_scheme_xml)
 puts "✅ Updated myfortune.xcscheme"
+
+# Create/update test scheme
+test_scheme_xml = <<-SCHEME
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1600"
+   version = "1.3">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "#{test_target.uuid}"
+               BuildableName = "myfortuneTests.xctest"
+               BlueprintName = "myfortuneTests"
+               ReferencedContainer = "container:myfortune.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "#{test_target.uuid}"
+            BuildableName = "myfortuneTests.xctest"
+            BlueprintName = "myfortuneTests"
+            ReferencedContainer = "container:myfortune.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <Testables>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "#{test_target.uuid}"
+            BuildableName = "myfortuneTests.xctest"
+            BlueprintName = "myfortuneTests"
+            ReferencedContainer = "container:myfortune.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "#{test_target.uuid}"
+            BuildableName = "myfortuneTests.xctest"
+            BlueprintName = "myfortuneTests"
+            ReferencedContainer = "container:myfortune.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>
+SCHEME
+
+File.write(File.join(project_schemes_dir, 'myfortuneTests.xcscheme'), test_scheme_xml)
+puts "✅ Updated myfortuneTests.xcscheme"
 
 # Verify the schemes
 puts "\n🔍 Verifying scheme files:"
