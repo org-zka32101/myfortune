@@ -51,7 +51,7 @@ jobs:
             sdk: iphonesimulator
             config: Debug
           - scheme: myfortune
-            destination: generic/platform=iphoneos
+            destination: ""
             sdk: iphoneos
             config: Release
 
@@ -89,20 +89,25 @@ jobs:
 
       - name: Build for ${{ matrix.config }}
         run: |
-          echo "🔍 Checking available schemes and destinations..."
-          xcodebuild -workspace myfortune.xcworkspace -list 2>&1 || true
-          echo ""
-          echo "📱 Available destinations:"
-          xcodebuild -workspace myfortune.xcworkspace -scheme myfortune -showdestinations 2>&1 || true
-          echo ""
-          echo "🏗️ Starting build..."
-          xcodebuild build \
-            -workspace myfortune.xcworkspace \
-            -scheme ${{ matrix.scheme }} \
-            -configuration ${{ matrix.config }} \
-            -destination '${{ matrix.destination }}' \
-            -derivedDataPath Build/${{ matrix.config }} \
-            -verbose
+          if [ "${{ matrix.config }}" = "Debug" ]; then
+            echo "📱 Building for Simulator with specific destination..."
+            xcodebuild build \
+              -workspace myfortune.xcworkspace \
+              -scheme ${{ matrix.scheme }} \
+              -configuration ${{ matrix.config }} \
+              -destination '${{ matrix.destination }}' \
+              -derivedDataPath Build/${{ matrix.config }} \
+              -verbose
+          else
+            echo "📱 Building for Device (build-only, no connected device)..."
+            xcodebuild build \
+              -workspace myfortune.xcworkspace \
+              -scheme ${{ matrix.scheme }} \
+              -configuration ${{ matrix.config }} \
+              -sdk ${{ matrix.sdk }} \
+              -derivedDataPath Build/${{ matrix.config }} \
+              -verbose
+          fi
 
       - name: Collect build logs
         if: failure()
