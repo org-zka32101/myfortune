@@ -3,6 +3,9 @@
 platform :ios, '14.0'
 
 target 'myfortune' do
+  # Enable module headers for Objective-C pods used by Swift
+  use_modular_headers!
+
   # UI & Foundation
   pod 'Alamofire', '~> 5.7'          # HTTP networking
   pod 'SnapKit', '~> 5.6'            # Auto-layout DSL
@@ -18,6 +21,7 @@ target 'myfortune' do
   # Development
   target 'myfortuneTests' do
     inherit! :search_paths
+    use_modular_headers!
     pod 'Quick'                       # BDD testing framework
     pod 'Nimble'                      # Matcher framework
   end
