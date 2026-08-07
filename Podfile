@@ -3,6 +3,9 @@
 platform :ios, '14.0'
 
 target 'myfortune' do
+  # Enable module headers for Objective-C pods used by Swift
+  use_modular_headers!
+
   # UI & Foundation
   pod 'Alamofire', '~> 5.7'          # HTTP networking
   pod 'SnapKit', '~> 5.6'            # Auto-layout DSL
@@ -18,6 +21,7 @@ target 'myfortune' do
   # Development
   target 'myfortuneTests' do
     inherit! :search_paths
+    use_modular_headers!
     pod 'Quick'                       # BDD testing framework
     pod 'Nimble'                      # Matcher framework
   end
@@ -25,7 +29,6 @@ end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
         '$(inherited)',
