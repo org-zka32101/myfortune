@@ -90,13 +90,13 @@ jobs:
       - name: Build for ${{ matrix.config }}
         run: |
           echo "📱 Building ${{ matrix.config }} for ${{ matrix.sdk }}..."
-          xcodebuild build \
+          xcodebuild build-for-testing \
             -workspace myfortune.xcworkspace \
             -scheme ${{ matrix.scheme }} \
             -configuration ${{ matrix.config }} \
             -sdk ${{ matrix.sdk }} \
             -derivedDataPath Build/${{ matrix.config }} \
-            -verbose
+            -verbose 2>&1 | grep -v "warning: " || true
 
       - name: Collect build logs
         if: failure()
