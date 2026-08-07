@@ -70,6 +70,11 @@ jobs:
           pod install
         working-directory: ${{ github.workspace }}
 
+      - name: Setup workspace schemes
+        run: |
+          ruby setup_workspace_schemes.rb
+        working-directory: ${{ github.workspace }}
+
       - name: Cache CocoaPods
         uses: actions/cache@v3
         with:
@@ -85,6 +90,7 @@ jobs:
             -scheme ${{ matrix.scheme }} \
             -configuration ${{ matrix.config }} \
             -destination '${{ matrix.destination }}' \
+            -sdk ${{ matrix.sdk }} \
             -derivedDataPath Build/${{ matrix.config }} \
             -verbose
 
