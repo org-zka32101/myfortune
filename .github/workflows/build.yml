@@ -47,11 +47,11 @@ jobs:
       matrix:
         include:
           - scheme: myfortune
-            destination: generic/platform=iOS Simulator
+            destination: platform=iOS Simulator,name=iPhone 15
             sdk: iphonesimulator
             config: Debug
           - scheme: myfortune
-            destination: generic/platform=iOS
+            destination: generic/platform=iphoneos
             sdk: iphoneos
             config: Release
 
