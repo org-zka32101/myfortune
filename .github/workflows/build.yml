@@ -141,15 +141,6 @@ jobs:
           echo "   Build-for-testing validates test compilation but skips runtime execution"
           echo "   Full test suite execution requires local simulator or TestFlight beta testing"
 
-      - name: Publish test report
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: Unit Test Results
-          path: 'TestResults/Info.plist'
-          reporter: 'java-junit'
-        continue-on-error: true
-
   # ✅ Job 4: セキュリティスキャン
   security-scan:
     name: Security Scan
@@ -188,16 +179,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '26.0'
-
-      - name: Install dependencies
-        run: |
-          gem install cocoapods --user-install
-          pod install
 
       - name: Note on Code Coverage
         run: |
