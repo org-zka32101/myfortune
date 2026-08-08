@@ -1,267 +1,185 @@
-# iOS アプリ デプロイメントガイド
+# App Store Connect Deployment Guide
 
-## 🎯 このガイドについて
+This guide explains how to configure your iOS app for deployment to the App Store and TestFlight through GitHub Actions CI/CD.
 
-myfortune iOS アプリを App Store にリリースするための完全なガイドです。
+## Prerequisites
 
-## 📋 デプロイメント前チェックリスト
+Before setting up the deployment pipeline, you need:
 
-### ✅ アプリ側の準備
+1. **Apple Developer Account** - Active enrollment in the Apple Developer Program
+2. **App ID** - Created in your Apple Developer account
+3. **Provisioning Profiles** - Distribution profile for App Store deployment
+4. **Code Signing Certificate** - Distribution certificate from Apple
 
-- [ ] **バージョン番号を更新**
-  - Info.plist の `CFBundleShortVersionString` を更新
-  - Info.plist の `CFBundleVersion` をインクリメント
+## Step 1: Obtain Apple Developer Credentials
 
-- [ ] **アイコンを設定**
-  - AppIcon.appiconset に全サイズのアイコンを配置
-  - 1024x1024 の App Store Icon を追加
+### 1.1 Download Distribution Certificate
 
-- [ ] **LaunchScreen を設定**
-  - LaunchScreen.storyboard をカスタマイズ
+1. Go to [Apple Developer Account](https://developer.apple.com/account/)
+2. Navigate to **Certificates, IDs & Profiles** → **Certificates**
+3. Click the **+** button to create a new certificate
+4. Select **Apple Distribution** and follow the prompts
+5. Download the certificate (`.cer` file)
+6. Double-click to add to your Keychain
+7. In Keychain, right-click the certificate and **Export** it as `.p12`
+   - Name it: `distribution-certificate.p12`
+   - Set a strong password (you'll need this)
 
-- [ ] **Privacy Policy & Terms を用意**
-  - プライバシーポリシーのURL
-  - 利用規約のURL
+### 1.2 Get Provisioning Profile
 
-- [ ] **スクリーンショットを用意**
-  - 各デバイスサイズ用のスクリーンショット (5枚以上推奨)
-  - iPhone Pro Max (6.7"), Pro (6.1"), 標準 (6.1")
+1. Navigate to **Certificates, IDs & Profiles** → **Profiles**
+2. Click **+** to create a new profile
+3. Select **App Store Connect** and click **Continue**
+4. Select your App ID and click **Continue**
+5. Select the **Distribution** certificate you just created
+6. Name it (e.g., `myfortune-distribution`) and click **Generate**
+7. Download the `.mobileprovision` file
 
-- [ ] **説明文を用意**
-  - アプリ名
-  - サブタイトル
-  - 説明文 (最大4000文字)
-  - キーワード (100文字以内、カンマ区切り)
-  - サポートURL
+### 1.3 Get Team ID and App ID
 
-### ✅ Apple Developer アカウント側の準備
+1. Navigate to **Membership Details**
+2. Find your **Team ID** (10-character identifier)
+3. Note your **Apple ID** (email address)
 
-- [ ] **Apple Developer Program に登録** ($99/年)
-  - https://developer.apple.com/programs/
+### 1.4 Create App-Specific Password
 
-- [ ] **App Store Connect にアプリを登録**
-  - App Name: myfortune
-  - Bundle ID: com.example.myfortune (または独自のID)
-  - SKU: 任意のユニークな識別子
+1. Go to [AppleID.apple.com](https://appleid.apple.com/)
+2. Navigate to **Security** → **App-Specific Passwords**
+3. Select **Generate password**
+4. Choose "Other (specify)" and type "GitHub Actions"
+5. Copy the generated password (you'll need this)
 
-- [ ] **Certificates を作成**
-  - Apple ID で https://developer.apple.com にサインイン
-  - Certificates, Identifiers & Profiles
-  - iOS Distribution Certificate を作成
+## Step 2: Configure GitHub Secrets
 
-- [ ] **App ID を作成**
-  - Bundle Identifier: com.yourcompany.myfortune
-  - Capabilities を選択 (例: Push Notifications)
+Add these secrets to your GitHub repository:
 
-- [ ] **Provisioning Profile を作成**
-  - Distribution Provisioning Profile を作成
-  - ダウンロードしてXcodeに追加
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret** for each of these:
 
-### ✅ ビルド準備
+### Required Secrets:
 
-- [ ] **Xcode で署名設定を完了**
+#### APPLE_TEAM_ID
+- **Value**: Your 10-character Team ID from Step 1.3
+- **Example**: ABC1234567
+
+#### APPLE_USERNAME
+- **Value**: Your Apple ID email address
+- **Example**: you@example.com
+
+#### APPLE_APP_SPECIFIC_PASSWORD
+- **Value**: The app-specific password from Step 1.4
+- **Do NOT use your regular Apple password**
+
+#### SIGNING_CERTIFICATE_BASE64
+- **How to create**:
   ```
-  Target > myfortune > Signing & Capabilities
-  Team: あなたのAppleチーム
-  Bundle Identifier: com.yourcompany.myfortune
-  Provisioning Profile: 作成したProfile
-  Code Sign Identity: iOS Distribution
+  base64 -i distribution-certificate.p12 | pbcopy
   ```
+  Or on Linux:
+  ```
+  base64 -w 0 distribution-certificate.p12 | xclip -selection clipboard
+  ```
+- **Value**: Paste the base64-encoded certificate
 
-- [ ] **Release ビルド設定を確認**
-  - Build Settings > Code Signing Identity = iOS Distribution
-  - Build Settings > Provisioning Profile = Distribution Profile
+#### SIGNING_CERTIFICATE_PASSWORD
+- **Value**: The password you set when exporting the .p12 file
 
-## 🔨 ビルドとアップロード
+#### PROVISIONING_PROFILE_BASE64
+- **How to create**:
+  ```
+  base64 -i myfortune.mobileprovision | pbcopy
+  ```
+  Or on Linux:
+  ```
+  base64 -w 0 myfortune.mobileprovision | xclip -selection clipboard
+  ```
+- **Value**: Paste the base64-encoded provisioning profile
 
-### Step 1: Archive を作成
+#### KEYCHAIN_PASSWORD
+- **Value**: Create a strong random password for the build keychain
+- **Example**: A 32-character random string
 
-**Xcode で**
+## Step 3: Update Project Configuration
+
+Make sure your Xcode project is properly configured:
+
+### 3.1 Provisioning Profile in Xcode
+
+1. Open your project in Xcode
+2. Select the **myfortune** target
+3. Go to **Build Settings**
+4. Search for "Provisioning Profile"
+5. Set **Provisioning Profile (Automatic)** to the distribution profile name
+6. Ensure **Code Sign Identity** is set to "Apple Distribution"
+
+### 3.2 Update Podfile
+
+Ensure your Podfile includes:
 ```
-1. Product > Destination を "Generic iOS Device" に変更
-2. Product > Build For > Running を実行
-3. Product > Archive
-```
-
-**または コマンドラインで**
-```bash
-xcodebuild \
-  -workspace myfortune.xcworkspace \
-  -scheme myfortune \
-  -configuration Release \
-  -archivePath "./myfortune.xcarchive" \
-  archive
-```
-
-### Step 2: Export IPA を生成
-
-**Xcode で**
-```
-1. Window > Organizer
-2. Archives タブで myfortune.xcarchive を選択
-3. Distribute App
-4. App Store Connect を選択
-5. Upload を選択
-6. 続行...
-```
-
-**または xcodebuild で**
-```bash
-xcodebuild \
-  -exportArchive \
-  -archivePath "./myfortune.xcarchive" \
-  -exportPath "./export" \
-  -exportOptionsPlist "export_options.plist"
+use_modular_headers!
 ```
 
-### Step 3: App Store Connect にアップロード
+This ensures Swift/Objective-C interoperability.
 
-**Xcode から直接**
-- Distribute App のウィザードに従う
-- Apple ID でログイン
-- アップロード完了
+## Step 4: Trigger Deployment
 
-**または Transporter アプリで**
-```bash
-# Apple から Transporter をダウンロード
-# https://apps.apple.com/jp/app/transporter/id1450874784
+### Option 1: Automatic Deployment (Recommended)
 
-# IPA ファイルを Transporter でアップロード
-```
-
-### Step 4: 審査提出
-
-**App Store Connect で**
-```
-1. https://appstoreconnect.apple.com にサインイン
-2. My Apps > myfortune
-3. Version 情報を確認
-4. 一般 > App Review Information を入力
-5. Build を選択 (最新の uploaded build)
-6. 審査のために提出
-```
-
-## 📝 App Store Review 情報
-
-### 必須情報
-
-- **Contact Information**
-  - 連絡先メールアドレス
-  - 電話番号
-  - サポートURL
-
-- **App Review Information**
-  - Demo Account (ログインが必要な場合)
-  - Notes for App Review (レビュアーへのメモ)
-
-- **Content Rights**
-  - 著作権情報
-  - サードパーティサービスの利用について
-
-### ガイドライン
-
-- App Store Review Guidelines に準拠
-  - https://developer.apple.com/app-store/review/guidelines/
-
-### よくある却下理由と対策
-
-| 問題 | 対策 |
-|------|------|
-| クラッシュ | テスト実機で十分なテストを実施 |
-| パフォーマンス低下 | バッテリー消費とメモリ使用量を最適化 |
-| UI/UX の不具合 | 複数デバイスで動作確認 |
-| プライバシー問題 | Privacy Policy を明記、ユーザー許可を取得 |
-| 外部決済 | In-App Purchase を使用 |
-
-## 🔄 アップデート手順
-
-### マイナーアップデート
-
-1. コード修正
-2. バージョン番号を更新
-3. Release Build を作成
-4. Archive & Export
-5. App Store Connect にアップロード
-
-### メジャーアップデート
-
-1. 新機能実装
-2. 十分なテスト実施
-3. バージョン番号を大幅更新
-4. Release Notes を準備
-5. 上記の手順に従う
-
-## 📊 リリース後の監視
-
-### App Store Connect で確認
-
-- **Impressions & Conversions**
-  - アプリの表示回数
-  - ダウンロード数
-
-- **Crashes & Exceptions**
-  - クラッシュレート
-  - エラーログ
-
-- **Performance**
-  - アプリの起動時間
-  - メモリ使用量
-
-### Firebase Analytics で確認
-
-- ユーザー数
-- エンゲージメント
-- カスタムイベント
-
-## 🚨 トラブルシューティング
-
-### ❌ "Certificate is not valid" エラー
+Create a Git tag to automatically trigger deployment:
 
 ```bash
-# キーチェーンから古い証明書を削除
-security delete-certificate -Z <Certificate Fingerprint>
-
-# 新しい証明書を再作成してダウンロード
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
 ```
 
-### ❌ "Provisioning Profile is invalid"
+The workflow will automatically:
+1. Build and archive the app
+2. Export the IPA
+3. Upload to App Store Connect
+4. Upload to TestFlight
+5. Create a GitHub Release
+6. Send a Slack notification
 
-```bash
-# Xcode で自動管理を有効化
-# または手動で Profile をダウンロード & インストール
-```
+### Option 2: Manual Deployment
 
-### ❌ "Archive 作成に失敗"
+1. Go to **Actions** → **App Store Deployment**
+2. Click **Run workflow**
+3. The workflow will run immediately
 
-```bash
-# Clean してから再度ビルド
-xcodebuild clean -workspace myfortune.xcworkspace -scheme myfortune
-xcodebuild archive ...
-```
+## Step 5: Monitor the Deployment
 
-### ❌ "Upload に失敗"
+1. Go to **Actions** → **App Store Deployment**
+2. Watch the workflow run in real-time
+3. Check each job's logs for any issues
 
-```bash
-# ネットワーク接続を確認
-# Xcode を再起動
-# Transporter アプリを試す
-```
+## Step 6: Verify in App Store Connect
 
-## 📚 参考資料
+1. Go to [App Store Connect](https://appstoreconnect.apple.com/)
+2. Navigate to **My Apps** → **myfortune**
+3. Go to **Builds**
+4. You should see your build appearing within 5-15 minutes after upload
 
-- [App Store Connect ヘルプ](https://help.apple.com/app-store-connect/)
-- [App Store Review Guidelines](https://developer.apple.com/app-store/review/guidelines/)
-- [Xcode Help - App Distribution](https://help.apple.com/xcode/mac/current/#/dev60e8f853d)
-- [TestFlight ガイド](https://developer.apple.com/testflight/)
+## Troubleshooting
 
-## ✅ デプロイメント完了チェック
+### Build fails during Archive
+- Check that your provisioning profile is valid and not expired
+- Ensure the certificate is properly imported
+- Verify the Team ID matches your Apple Developer account
 
-- [ ] App Store Connect で「Ready for Sale」
-- [ ] App Store で検索可能
-- [ ] ダウンロード可能
-- [ ] Reviews & Ratings が表示開始
-- [ ] Analytics データが見える
+### Upload fails with authentication error
+- Verify your app-specific password is correct
+- Check that your Apple ID is correct
+- Ensure you're using an app-specific password, not your regular Apple password
 
----
+### Build doesn't appear in App Store Connect
+- Check the workflow logs for upload errors
+- Wait 5-15 minutes for processing
+- Verify the Team ID is correct in your project settings
 
-**質問または問題が発生した場合は、Apple Developer Support にお問い合わせください。**
+## Next Steps
+
+1. Set up Apple Developer account and credentials
+2. Configure GitHub Secrets
+3. Create a version tag to trigger deployment
+4. Monitor the workflow in GitHub Actions
+5. Check App Store Connect for your build

@@ -185,6 +185,7 @@ jobs:
           echo "⚠️  Code coverage collection requires full test suite execution"
           echo "   This requires simulator availability for test execution"
           echo "   Coverage can be generated locally or in a proper CI/CD environment"
+          echo "   For now, we validate test compilation with build-for-testing"
 
   # ✅ Job 6: アーティファクト生成
   artifacts:

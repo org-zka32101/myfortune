@@ -7,7 +7,7 @@ on:
   workflow_dispatch:  # Manual trigger
 
 env:
-  XCODE_VERSION: '15.0'
+  XCODE_VERSION: '26.0'
 
 jobs:
   # ✅ Archive & Export
@@ -28,6 +28,33 @@ jobs:
           gem install cocoapods --user-install
           pod install
 
+      - name: Import Signing Certificate
+        run: |
+          # Decode and import the signing certificate
+          echo "${{ secrets.SIGNING_CERTIFICATE_BASE64 }}" | base64 --decode > certificate.p12
+
+          # Create keychain and import certificate
+          security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain || true
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+          security import certificate.p12 -k build.keychain -P "${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign || true
+          security set-keychain-settings -lut 3600 build.keychain
+
+          # Clean up
+          rm -f certificate.p12
+
+      - name: Import Provisioning Profile
+        run: |
+          # Decode and import the provisioning profile
+          echo "${{ secrets.PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > myfortune.mobileprovision
+
+          # Import to standard location
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
+          cp myfortune.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
+          # Clean up
+          rm -f myfortune.mobileprovision
+
       - name: Create Archive
         run: |
           xcodebuild archive \
@@ -36,6 +63,8 @@ jobs:
             -configuration Release \
             -archivePath "./myfortune.xcarchive" \
             -resultBundlePath ArchiveResult \
+            -sdk iphoneos \
+            -derivedDataPath Build/Release \
             -verbose
 
       - name: Export IPA
@@ -63,14 +92,14 @@ jobs:
             -verbose
 
       - name: Upload IPA to artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: myfortune.ipa
           path: export/myfortune.ipa
           retention-days: 30
 
       - name: Upload dSYM
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: myfortune-dsym
           path: ./myfortune.xcarchive/dSYMs
@@ -86,7 +115,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download IPA
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: myfortune.ipa
 
@@ -112,7 +141,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download IPA
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: myfortune.ipa
 
