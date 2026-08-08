@@ -140,10 +140,6 @@ jobs:
           echo "⚠️  Unit test execution requires simulator availability"
           echo "   Build-for-testing validates test compilation but skips runtime execution"
           echo "   Full test suite execution requires local simulator or TestFlight beta testing"
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: TestResults
 
       - name: Publish test report
         if: always()
