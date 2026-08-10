@@ -18,6 +18,9 @@ target 'myfortune' do
   pod 'FirebaseAnalytics'             # Firebase Analytics
   pod 'FirebaseMessaging'             # Push notifications
 
+  # Monetization
+  pod 'Google-Mobile-Ads-SDK'         # AdMob interstitial ads for free users
+
   # Development
   target 'myfortuneTests' do
     inherit! :search_paths

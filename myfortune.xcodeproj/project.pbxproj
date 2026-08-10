@@ -10,6 +10,9 @@
 		1094A8CF33FF8FB539D27E2D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3BD1BEA9CB6483A339AB5166 /* LaunchScreen.storyboard */; };
 		345E8A5494F226A160069614 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FF42C23CA657F178612BC8 /* AppDelegate.swift */; };
 		34BEDF52240942DB89EE6491 /* FortuneServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4AA9348E15F3D81A743B992 /* FortuneServiceTests.swift */; };
+		AD9D3BDE56CE33E2703E66D8 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C2CD5E8C40FCD2739AC602 /* AdManager.swift */; };
+		358AD7107D8E38E01B620E3E /* PremiumManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29FEABD19C6862277D23E1C /* PremiumManager.swift */; };
+		49DA421B9ADED58546BDBA6B /* PremiumManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1DE628C6CE124028427D3F /* PremiumManagerTests.swift */; };
 		521B75D4E4BF4BE88542AA04 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 733589EC2F511343010321D5 /* HomeViewController.swift */; };
 		646F4A9809D2F5AA8BCE58CC /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 52552B86B8926CF50E8B0CD1 /* Info.plist */; };
 		7B72121C16A3224B20AD8A08 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 204A916A328A4EDB6D8EAA7E /* Foundation.framework */; };
@@ -43,6 +46,9 @@
 		A4AA9348E15F3D81A743B992 /* FortuneServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FortuneServiceTests.swift; path = myfortuneTests/FortuneServiceTests.swift; sourceTree = "<group>"; };
 		A5169A0D6F08ADC4DB3EF95E /* SceneDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = myfortune/SceneDelegate.swift; sourceTree = "<group>"; };
 		AD1706E32E0D6F7F2C89297B /* Fortune.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Fortune.swift; path = myfortune/Models/Fortune.swift; sourceTree = "<group>"; };
+		85C2CD5E8C40FCD2739AC602 /* AdManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdManager.swift; path = myfortune/Services/AdManager.swift; sourceTree = "<group>"; };
+		E29FEABD19C6862277D23E1C /* PremiumManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PremiumManager.swift; path = myfortune/Services/PremiumManager.swift; sourceTree = "<group>"; };
+		2B1DE628C6CE124028427D3F /* PremiumManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PremiumManagerTests.swift; path = myfortuneTests/PremiumManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				A4AA9348E15F3D81A743B992 /* FortuneServiceTests.swift */,
+				2B1DE628C6CE124028427D3F /* PremiumManagerTests.swift */,
 			);
 			name = myfortuneTests;
 			sourceTree = "<group>";
@@ -141,6 +148,8 @@
 			isa = PBXGroup;
 			children = (
 				3A6915CC417E18AD11F9F0FC /* FortuneService.swift */,
+				85C2CD5E8C40FCD2739AC602 /* AdManager.swift */,
+				E29FEABD19C6862277D23E1C /* PremiumManager.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -267,6 +276,8 @@
 				521B75D4E4BF4BE88542AA04 /* HomeViewController.swift in Sources */,
 				A11811CE7EAD2BD909880FD8 /* Fortune.swift in Sources */,
 				E12ECE3E73BEE7CE82DD36FC /* FortuneService.swift in Sources */,
+				AD9D3BDE56CE33E2703E66D8 /* AdManager.swift in Sources */,
+				358AD7107D8E38E01B620E3E /* PremiumManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +286,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				34BEDF52240942DB89EE6491 /* FortuneServiceTests.swift in Sources */,
+				49DA421B9ADED58546BDBA6B /* PremiumManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,5 +1,6 @@
 import UIKit
 import Firebase
+import GoogleMobileAds
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -7,6 +8,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Initialize Firebase
         FirebaseApp.configure()
+
+        // Initialize AdMob and warm up the first interstitial for free users
+        GADMobileAds.sharedInstance().start(completionHandler: nil)
+        AdManager.shared.preloadInterstitial()
 
         return true
     }

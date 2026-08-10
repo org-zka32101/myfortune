@@ -1,11 +1,29 @@
 import UIKit
+import AppTrackingTransparency
 
 class HomeViewController: UIViewController {
+
+    private static var hasRequestedTrackingAuthorization = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupUI()
+        AdManager.shared.preloadInterstitial()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        requestTrackingAuthorizationIfNeeded()
+    }
+
+    /// Requests App Tracking Transparency authorization once per launch.
+    /// AdMob can still serve non-personalized ads if the user declines.
+    private func requestTrackingAuthorizationIfNeeded() {
+        guard #available(iOS 14, *), !Self.hasRequestedTrackingAuthorization else { return }
+        Self.hasRequestedTrackingAuthorization = true
+
+        ATTrackingManager.requestTrackingAuthorization { _ in }
     }
 
     private func setupUI() {
@@ -57,8 +75,34 @@ class HomeViewController: UIViewController {
     }
 
     @objc private func startButtonTapped() {
-        let alert = UIAlertController(title: "Fortune", message: "Your fortune awaits!", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        FortuneService.shared.fetchFortune { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let fortune):
+                self.showFortune(fortune)
+            case .failure:
+                self.showFortune(text: "Something went wrong. Please try again.")
+            }
+        }
+    }
+
+    private func showFortune(_ fortune: Fortune) {
+        showFortune(text: fortune.text)
+    }
+
+    private func showFortune(text: String) {
+        let alert = UIAlertController(title: "Fortune", message: text, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+            self?.showAdIfNeeded()
+        })
         present(alert, animated: true)
+    }
+
+    /// Free users see an interstitial ad right after viewing their fortune
+    /// result. Premium users (see `PremiumManager`) never see it.
+    private func showAdIfNeeded() {
+        guard !PremiumManager.shared.isPremium else { return }
+        AdManager.shared.showInterstitial(from: self)
     }
 }
