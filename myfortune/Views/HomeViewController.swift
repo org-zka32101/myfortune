@@ -5,6 +5,9 @@ class HomeViewController: UIViewController {
 
     private static var hasRequestedTrackingAuthorization = false
 
+    private var startButton: UIButton!
+    private let activityIndicator = UIActivityIndicatorView(style: .medium)
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -72,11 +75,18 @@ class HomeViewController: UIViewController {
         startButton.contentEdgeInsets = UIEdgeInsets(top: 12, left: 24, bottom: 12, right: 24)
         startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
         stackView.addArrangedSubview(startButton)
+        self.startButton = startButton
+
+        activityIndicator.hidesWhenStopped = true
+        stackView.addArrangedSubview(activityIndicator)
     }
 
     @objc private func startButtonTapped() {
+        setLoading(true)
+
         FortuneService.shared.fetchFortune { [weak self] result in
             guard let self else { return }
+            self.setLoading(false)
 
             switch result {
             case .success(let fortune):
@@ -85,6 +95,14 @@ class HomeViewController: UIViewController {
                 self.showFortune(text: "Something went wrong. Please try again.")
             }
         }
+    }
+
+    /// The fortune now comes from a network call (Cloud Function), so guard
+    /// against double taps and give the user something to look at while it
+    /// loads — this used to be instant when it was a local placeholder.
+    private func setLoading(_ isLoading: Bool) {
+        startButton.isEnabled = !isLoading
+        isLoading ? activityIndicator.startAnimating() : activityIndicator.stopAnimating()
     }
 
     private func showFortune(_ fortune: Fortune) {

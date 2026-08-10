@@ -1,35 +1,13 @@
 import XCTest
 @testable import myfortune
 
+// `FortuneService.fetchFortune` now calls the `analyzeFortune` Cloud
+// Function over the network (via Firebase Auth + Functions), which needs a
+// configured `FirebaseApp` (GoogleService-Info.plist) and a live backend —
+// neither of which is available in a plain unit test target. Exercising it
+// here would crash (Firebase fatal-errors without a configured app) or hang
+// waiting on the network, so there is intentionally no test for it in this
+// target. Cover it with an integration/UI test against the Firebase
+// emulator suite instead, once that's set up.
 class FortuneServiceTests: XCTestCase {
-
-    var service: FortuneService!
-
-    override func setUp() {
-        super.setUp()
-        service = FortuneService.shared
-    }
-
-    override func tearDown() {
-        service = nil
-        super.tearDown()
-    }
-
-    func testFetchFortune() {
-        let expectation = XCTestExpectation(description: "Fetch fortune")
-
-        service.fetchFortune { result in
-            switch result {
-            case .success(let fortune):
-                XCTAssertNotNil(fortune.id)
-                XCTAssertNotNil(fortune.text)
-                XCTAssertFalse(fortune.text.isEmpty)
-            case .failure(let error):
-                XCTFail("Failed to fetch fortune: \(error)")
-            }
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 5.0)
-    }
 }
