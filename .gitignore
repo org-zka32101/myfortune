@@ -58,6 +58,18 @@ firebase-debug.*.log
 # Firebase config (contains a project-specific, but not secret, API key —
 # still best kept out of a public repo; download fresh from the console)
 GoogleService-Info.plist
+android/app/google-services.json
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml
+android/captures/
+android/.cxx/
 
 # System files
 .AppleDouble

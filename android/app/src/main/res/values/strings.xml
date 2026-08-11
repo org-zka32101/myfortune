@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">myfortune</string>
+    <string name="welcome_title">Welcome to myfortune</string>
+    <string name="welcome_subtitle">Discover your daily fortune</string>
+    <string name="get_fortune">Get Your Fortune</string>
+    <string name="fortune_title">Fortune</string>
+    <string name="fetch_error">Something went wrong. Please try again.</string>
+    <string name="ok">OK</string>
+</resources>

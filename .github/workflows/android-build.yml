@@ -1,0 +1,79 @@
+name: Android Build & Test CI/CD
+
+on:
+  push:
+    branches: [ main, develop, claude/* ]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android-build.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android-build.yml'
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # google-services.json is gitignored (see docs/android-setup.md) since it's
+      # per-developer/per-project config. CI only needs the google-services plugin
+      # to be able to parse *a* file with the right shape — these are placeholder,
+      # non-secret values, not real Firebase project credentials.
+      - name: Write placeholder google-services.json for CI
+        run: |
+          cat > app/google-services.json << 'EOF'
+          {
+            "project_info": {
+              "project_number": "000000000000",
+              "project_id": "myfortune-ci-placeholder",
+              "storage_bucket": "myfortune-ci-placeholder.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+                  "android_client_info": { "package_name": "com.example.myfortune" }
+                },
+                "oauth_client": [],
+                "api_key": [{ "current_key": "AIzaCiPlaceholderPlaceholderPlaceholder00" }],
+                "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --stacktrace
+
+      - name: Lint
+        run: ./gradlew lintDebug --stacktrace
+        continue-on-error: true
+
+      - name: Assemble debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: myfortune-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 30

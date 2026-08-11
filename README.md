@@ -1,10 +1,11 @@
 # myfortune
 
-iOS占い・運勢アプリ
+iOS / Android占い・運勢アプリ
 
 ## 概要
 
-myfortuneは、ユーザーが毎日の運勢や占いを楽しむことができるiOSアプリケーションです。
+myfortuneは、ユーザーが毎日の運勢や占いを楽しむことができるアプリケーションです。
+iOS版（`myfortune/`）とAndroid版（`android/`）があり、AIバックエンド（`functions/`）を共有しています。
 
 ## 要件
 
@@ -57,6 +58,9 @@ myfortune/
 │   │   ├── Services/
 │   │   └── Resources/
 │   └── myfortuneTests/
+├── android/                      # Androidアプリケーション（詳細は docs/android-setup.md）
+│   └── app/src/main/java/com/example/myfortune/
+├── functions/                    # AIバックエンド（Cloud Functions、iOS/Android共通）
 ├── .github/
 │   └── workflows/               # CI/CD設定
 └── docs/                        # ドキュメント
