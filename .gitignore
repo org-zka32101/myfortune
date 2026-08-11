@@ -48,6 +48,17 @@ Carthage/Build/
 # Logs
 *.log
 
+# Firebase Functions
+functions/node_modules/
+functions/lib/
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+
+# Firebase config (contains a project-specific, but not secret, API key —
+# still best kept out of a public repo; download fresh from the console)
+GoogleService-Info.plist
+
 # System files
 .AppleDouble
 .LSOverride

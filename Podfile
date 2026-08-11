@@ -18,6 +18,14 @@ target 'myfortune' do
   pod 'FirebaseAnalytics'             # Firebase Analytics
   pod 'FirebaseMessaging'             # Push notifications
 
+  # AI fortune backend (Cloud Functions proxy — see functions/)
+  pod 'FirebaseAuth'                  # Anonymous auth to identify callers
+  pod 'FirebaseFunctions'             # Calls the analyzeFortune Cloud Function
+  pod 'FirebaseAppCheck'              # Proves calls come from the real app
+
+  # Monetization
+  pod 'Google-Mobile-Ads-SDK'         # AdMob interstitial ads for free users
+
   # Development
   target 'myfortuneTests' do
     inherit! :search_paths
