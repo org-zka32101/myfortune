@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple placeholder mark (a "fortune star") for the adaptive icon foreground.
+     Swap for real app art before release. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,24 L61,46 L84,46 L65,60 L72,82 L54,68 L36,82 L43,60 L24,46 L47,46 Z" />
+</vector>
