@@ -1,7 +1,7 @@
-package com.example.myfortune
+package com.yourwish.cometrueaifortune
 
 import android.app.Application
-import com.example.myfortune.service.AdManager
+import com.yourwish.cometrueaifortune.service.AdManager
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.Firebase
 import com.google.firebase.appcheck.appCheck

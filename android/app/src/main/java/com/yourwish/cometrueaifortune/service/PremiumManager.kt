@@ -1,4 +1,4 @@
-package com.example.myfortune.service
+package com.yourwish.cometrueaifortune.service
 
 import android.content.Context
 import android.content.SharedPreferences
