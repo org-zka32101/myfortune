@@ -1,13 +1,13 @@
-package com.example.myfortune
+package com.yourwish.cometrueaifortune
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
-import com.example.myfortune.databinding.ActivityMainBinding
-import com.example.myfortune.model.Fortune
-import com.example.myfortune.service.AdManager
-import com.example.myfortune.service.FortuneService
-import com.example.myfortune.service.PremiumManager
+import com.yourwish.cometrueaifortune.databinding.ActivityMainBinding
+import com.yourwish.cometrueaifortune.model.Fortune
+import com.yourwish.cometrueaifortune.service.AdManager
+import com.yourwish.cometrueaifortune.service.FortuneService
+import com.yourwish.cometrueaifortune.service.PremiumManager
 
 /** Mirrors myfortune/Views/HomeViewController.swift. */
 class MainActivity : AppCompatActivity() {

@@ -1,6 +1,6 @@
-package com.example.myfortune.service
+package com.yourwish.cometrueaifortune.service
 
-import com.example.myfortune.model.Fortune
+import com.yourwish.cometrueaifortune.model.Fortune
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.functions.FirebaseFunctions
 import java.util.Date

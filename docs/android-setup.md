@@ -12,7 +12,7 @@ iOS版で使っているものと**同じFirebaseプロジェクト**に追加�
 
 ```
 Firebaseコンソール → プロジェクトの設定 → Androidアプリを追加
-→ パッケージ名: com.example.myfortune（android/app/build.gradle.kts の applicationId と一致させる）
+→ パッケージ名: com.yourwish.cometrueaifortune（android/app/build.gradle.kts の applicationId と一致させる）
 → google-services.json をダウンロード
 → android/app/ 直下に配置
 ```

@@ -1,4 +1,4 @@
-package com.example.myfortune.model
+package com.yourwish.cometrueaifortune.model
 
 import java.util.Date
 import java.util.UUID

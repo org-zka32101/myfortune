@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myfortune"
+    namespace = "com.yourwish.cometrueaifortune"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.myfortune"
+        applicationId = "com.yourwish.cometrueaifortune"
         // 26+ (Android 8.0, 2017) covers the vast majority of active devices and
         // keeps launcher-icon resources to a single adaptive-icon definition.
         minSdk = 26
