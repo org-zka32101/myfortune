@@ -104,6 +104,12 @@ jobs:
         working-directory: android
 
     steps:
+      # Runs before the secrets check purely so the job-level
+      # `working-directory: android` default has something to cd into — the
+      # check step itself doesn't touch any checked-out files.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Check signing secrets are configured
         id: check
         env:
@@ -115,10 +121,6 @@ jobs:
             echo "configured=false" >> "$GITHUB_OUTPUT"
             echo "::notice::ANDROID_KEYSTORE_BASE64 not set — skipping release AAB build (see docs/android-setup.md)."
           fi
-
-      - name: Checkout code
-        if: steps.check.outputs.configured == 'true'
-        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         if: steps.check.outputs.configured == 'true'
