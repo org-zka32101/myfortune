@@ -40,8 +40,28 @@ Firebaseコンソール → App Check → Androidアプリを登録 → Play Int
 ```bash
 cd android
 ./gradlew assembleDebug   # デバッグAPK
-./gradlew assembleRelease # リリースAPK（署名設定は別途必要）
 ./gradlew testDebugUnitTest
 ```
 
-CI（`.github/workflows/android-build.yml`）でも同様のビルド・テストを自動実行します。
+CI（`.github/workflows/android-build.yml`）でも同様のビルド・テストを自動実行し、
+デバッグAPKをActionsのartifactとしてアップロードします。
+
+## 5. リリース用AAB（Google Play提出用）の自動ビルド
+
+`release-bundle` ジョブが、以下のSecretsが設定されている場合のみ動作し、
+署名済みの `.aab` をArtifactとしてアップロードします（未設定の間はスキップされる安全な作りです）。
+
+```
+GitHubリポジトリ → Settings → Secrets and variables → Actions → Secrets タブ
+
+ANDROID_KEYSTORE_BASE64    リリース署名鍵(.keystore)をbase64エンコードした文字列
+ANDROID_KEYSTORE_PASSWORD  ストアパスワード
+ANDROID_KEY_ALIAS          鍵のエイリアス名
+ANDROID_KEY_PASSWORD       鍵のパスワード（PKCS12形式ではストアパスワードと同一）
+
+ANDROID_GOOGLE_SERVICES_JSON （前述、リリースビルドにも必須）
+```
+
+⚠️ 署名鍵（キーストア）は紛失すると同じ鍵でのアップロードができなくなります
+（Play Console経由でのアップロードキーリセット申請が必要）。安全な場所に必ずバックアップしてください。
+リポジトリには`*.keystore` / `*.jks`として`.gitignore`済みのため、絶対にコミットしないでください。

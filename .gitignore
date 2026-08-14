@@ -71,6 +71,10 @@ android/app/*.iml
 android/captures/
 android/.cxx/
 
+# Android release signing (never commit — see docs/android-setup.md)
+*.keystore
+*.jks
+
 # System files
 .AppleDouble
 .LSOverride
