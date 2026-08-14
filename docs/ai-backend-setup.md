@@ -55,11 +55,30 @@ firebase functions:secrets:set ANTHROPIC_API_KEY
 
 ## 5. Cloud Functionsをデプロイ
 
+### 手動デプロイ
+
 ```bash
 cd functions
 npm install
 cd ..
 firebase deploy --only functions,firestore:rules
+```
+
+### 自動デプロイ(GitHub Actions、任意)
+
+`.github/workflows/functions-deploy.yml` により、`main` へのpushで
+`functions/` や `firestore.rules` が変更されると自動デプロイされます。
+以下を設定すると有効になります(未設定の間はワークフローが自動的にスキップされ、
+手動デプロイのみで運用できます):
+
+```
+Google Cloud Console → IAM と管理 → サービスアカウント → 作成
+  ロール: Firebase Admin, Service Account User, Cloud Build Editor
+  → キーを追加 → JSON をダウンロード
+
+GitHubリポジトリ → Settings → Secrets and variables → Actions
+  Secret:   FIREBASE_SERVICE_ACCOUNT_KEY = (ダウンロードしたJSONの中身)
+  Variable: FIREBASE_PROJECT_ID          = <your-project-id>
 ```
 
 ## 6. コスト事故を防ぐための安全弁(必須)
