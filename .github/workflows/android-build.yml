@@ -11,6 +11,7 @@ on:
     paths:
       - 'android/**'
       - '.github/workflows/android-build.yml'
+  workflow_dispatch: {}
 
 jobs:
   build:
@@ -94,7 +95,9 @@ jobs:
     runs-on: ubuntu-latest
     # Guard: skip entirely until the signing secrets are configured (see
     # docs/android-setup.md). Keeps this job a safe no-op before setup.
-    if: ${{ github.event_name == 'push' && secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+    # Runs on real pushes to main/develop/claude/*, or manually via
+    # workflow_dispatch — never on pull_request (no release builds from PRs).
+    if: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 != '' }}
     defaults:
       run:
         working-directory: android
