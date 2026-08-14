@@ -34,12 +34,22 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       # google-services.json is gitignored (see docs/android-setup.md) since it's
-      # per-developer/per-project config. CI only needs the google-services plugin
-      # to be able to parse *a* file with the right shape — these are placeholder,
-      # non-secret values, not real Firebase project credentials.
-      - name: Write placeholder google-services.json for CI
+      # per-developer/per-project config. If the ANDROID_GOOGLE_SERVICES_JSON
+      # repository secret is set (Settings -> Secrets and variables -> Actions),
+      # the real file is used so the build is fully functional (AI fortune
+      # fetch, App Check). Otherwise fall back to a placeholder that only
+      # satisfies the google-services plugin's parser, so builds/tests/lint
+      # still run without the real Firebase project.
+      - name: Write google-services.json
+        env:
+          REAL_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
         run: |
-          cat > app/google-services.json << 'EOF'
+          if [ -n "$REAL_GOOGLE_SERVICES_JSON" ]; then
+            echo "Using real google-services.json from the ANDROID_GOOGLE_SERVICES_JSON secret"
+            echo "$REAL_GOOGLE_SERVICES_JSON" > app/google-services.json
+          else
+            echo "ANDROID_GOOGLE_SERVICES_JSON secret not set — using CI placeholder (see docs/android-setup.md)"
+            cat > app/google-services.json << 'EOF'
           {
             "project_info": {
               "project_number": "000000000000",
@@ -60,6 +70,7 @@ jobs:
             "configuration_version": "1"
           }
           EOF
+          fi
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
