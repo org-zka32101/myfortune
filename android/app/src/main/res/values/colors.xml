@@ -1,3 +1,11 @@
 <resources>
-    <color name="ic_launcher_background">#3F51B5</color>
+    <!-- Mystical night-sky palette shared across the app UI and the adaptive
+         launcher icon (see themes.xml, ic_launcher_foreground.xml) — mirrors
+         myfortune/Views/HomeViewController.swift's Theme enum on iOS. -->
+    <color name="fortune_background">#1A1235</color>
+    <color name="fortune_accent">#D4AF6A</color>
+    <color name="fortune_text_primary">#FFFFFF</color>
+    <color name="fortune_text_secondary">#B3FFFFFF</color>
+
+    <color name="ic_launcher_background">@color/fortune_background</color>
 </resources>
