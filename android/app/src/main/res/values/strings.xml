@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">myfortune</string>
-    <string name="welcome_title">Welcome to myfortune</string>
-    <string name="welcome_subtitle">Discover your daily fortune</string>
-    <string name="get_fortune">Get Your Fortune</string>
-    <string name="fortune_title">Fortune</string>
-    <string name="fetch_error">Something went wrong. Please try again.</string>
-    <string name="ok">OK</string>
+    <string name="welcome_title">あなただけの、今日の運勢</string>
+    <string name="welcome_subtitle">AIがあなたの記録をもとに占います</string>
+    <string name="get_fortune">占いを見る</string>
+    <string name="fortune_title">今日の占い</string>
+    <string name="fetch_error">占いの取得に失敗しました。もう一度お試しください。</string>
+    <string name="ok">閉じる</string>
 </resources>

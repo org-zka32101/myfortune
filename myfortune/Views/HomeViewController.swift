@@ -3,6 +3,16 @@ import AppTrackingTransparency
 
 class HomeViewController: UIViewController {
 
+    /// A fixed mystical night-sky palette, independent of system light/dark
+    /// mode — a fortune-telling app reads best with one deliberate
+    /// atmosphere rather than switching to a stark white background.
+    private enum Theme {
+        static let background = UIColor(red: 0x1A / 255, green: 0x12 / 255, blue: 0x35 / 255, alpha: 1)
+        static let accent = UIColor(red: 0xD4 / 255, green: 0xAF / 255, blue: 0x6A / 255, alpha: 1)
+        static let textPrimary = UIColor.white
+        static let textSecondary = UIColor(white: 1, alpha: 0.7)
+    }
+
     private static var hasRequestedTrackingAuthorization = false
 
     private var startButton: UIButton!
@@ -30,11 +40,20 @@ class HomeViewController: UIViewController {
     }
 
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = Theme.background
 
         // Navigation Bar
-        title = "myfortune"
+        title = "今日の占い"
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.overrideUserInterfaceStyle = .dark
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.configureWithOpaqueBackground()
+        navBarAppearance.backgroundColor = Theme.background
+        navBarAppearance.titleTextAttributes = [.foregroundColor: Theme.textPrimary]
+        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: Theme.textPrimary]
+        navigationController?.navigationBar.standardAppearance = navBarAppearance
+        navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
+        navigationController?.navigationBar.tintColor = Theme.accent
 
         // Main Content
         let stackView = UIStackView()
@@ -48,29 +67,34 @@ class HomeViewController: UIViewController {
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 32),
+            stackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -32),
         ])
 
         // Welcome Label
         let welcomeLabel = UILabel()
-        welcomeLabel.text = "Welcome to myfortune"
+        welcomeLabel.text = "あなただけの、今日の運勢"
         welcomeLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        welcomeLabel.textColor = Theme.textPrimary
         welcomeLabel.textAlignment = .center
+        welcomeLabel.numberOfLines = 0
         stackView.addArrangedSubview(welcomeLabel)
 
         // Subtitle
         let subtitleLabel = UILabel()
-        subtitleLabel.text = "Discover your daily fortune"
+        subtitleLabel.text = "AIがあなたの記録をもとに占います"
         subtitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        subtitleLabel.textColor = .secondaryLabel
+        subtitleLabel.textColor = Theme.textSecondary
         subtitleLabel.textAlignment = .center
+        subtitleLabel.numberOfLines = 0
         stackView.addArrangedSubview(subtitleLabel)
 
         // Start Button
         let startButton = UIButton(type: .system)
-        startButton.setTitle("Get Your Fortune", for: .normal)
+        startButton.setTitle("占いを見る", for: .normal)
         startButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        startButton.backgroundColor = .systemBlue
-        startButton.setTitleColor(.white, for: .normal)
+        startButton.backgroundColor = Theme.accent
+        startButton.setTitleColor(Theme.background, for: .normal)
         startButton.layer.cornerRadius = 8
         startButton.contentEdgeInsets = UIEdgeInsets(top: 12, left: 24, bottom: 12, right: 24)
         startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
@@ -78,6 +102,7 @@ class HomeViewController: UIViewController {
         self.startButton = startButton
 
         activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = Theme.accent
         stackView.addArrangedSubview(activityIndicator)
     }
 
@@ -92,7 +117,7 @@ class HomeViewController: UIViewController {
             case .success(let fortune):
                 self.showFortune(fortune)
             case .failure:
-                self.showFortune(text: "Something went wrong. Please try again.")
+                self.showFortune(text: "占いの取得に失敗しました。もう一度お試しください。")
             }
         }
     }
@@ -110,8 +135,9 @@ class HomeViewController: UIViewController {
     }
 
     private func showFortune(text: String) {
-        let alert = UIAlertController(title: "Fortune", message: text, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+        let alert = UIAlertController(title: "今日の占い", message: text, preferredStyle: .alert)
+        alert.view.tintColor = Theme.accent
+        alert.addAction(UIAlertAction(title: "閉じる", style: .default) { [weak self] _ in
             self?.showAdIfNeeded()
         })
         present(alert, animated: true)

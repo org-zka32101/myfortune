@@ -1,3 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.MyFortune" parent="Theme.Material3.DayNight.NoActionBar" />
+    <!-- A fixed mystical night-sky theme, independent of system light/dark
+         mode — see myfortune/Views/HomeViewController.swift's Theme enum for
+         the same choice on iOS. A fortune-telling app reads best with one
+         deliberate atmosphere rather than switching to a stark white
+         background. -->
+    <style name="Theme.MyFortune" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/fortune_accent</item>
+        <item name="colorOnPrimary">@color/fortune_background</item>
+        <item name="colorSurface">@color/fortune_background</item>
+        <item name="colorOnSurface">@color/fortune_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/fortune_text_secondary</item>
+        <item name="android:windowBackground">@color/fortune_background</item>
+        <item name="android:statusBarColor">@color/fortune_background</item>
+        <item name="android:navigationBarColor">@color/fortune_background</item>
+    </style>
 </resources>

@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Simple placeholder mark (a "fortune star") for the adaptive icon foreground.
-     Swap for real app art before release. -->
+<!-- Placeholder adaptive-icon foreground: a gold crescent moon + sparkle,
+     mirroring the generated iOS AppIcon (myfortune/Assets.xcassets) and the
+     fortune_accent/fortune_background palette in colors.xml. Swap for real
+     app art before release. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Crescent moon: outer circle minus an offset inner circle (evenOdd) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,24 L61,46 L84,46 L65,60 L72,82 L54,68 L36,82 L43,60 L24,46 L47,46 Z" />
+        android:fillColor="#D4AF6A"
+        android:fillType="evenOdd"
+        android:pathData="M54,48 m-16,0 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0 M61,44 m-13,0 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0" />
+    <!-- Sparkle accent -->
+    <path
+        android:fillColor="#D4AF6A"
+        android:pathData="M72,60 L74,64 L78,66 L74,68 L72,72 L70,68 L66,66 L70,64 Z" />
 </vector>
